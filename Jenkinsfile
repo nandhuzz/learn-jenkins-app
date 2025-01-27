@@ -34,7 +34,7 @@ pipeline {
                     npm --version
                     npm ci
                     npm test
-                    check /build/index.html
+                    test -f /build/index.html
                '''
             }
         }
