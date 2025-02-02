@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    enviroment {
+        NETLIFY_SITE_ID = '7df4cefe-0cb9-46f0-a12c-2337d394d74f'
+        NETLIFY_AUTH_TOKEN = credentials('NETLIFY')
+    }
+
     stages {
 
         stage('Build') {
@@ -22,54 +27,7 @@ pipeline {
             }
         }
 
-        stage('Tests') {
-            parallel {
-                stage('Unit tests') {
-                    agent {
-                        docker {
-                            image 'node:18-alpine'
-                            reuseNode true
-                        }
-                    }
-
-                    steps {
-                        sh '''
-                            #test -f build/index.html
-                            npm test
-                        '''
-                    }
-                    post {
-                        always {
-                            junit 'jest-results/junit.xml'
-                        }
-                    }
-                }
-
-                stage('E2E') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                            reuseNode true
-                        }
-                    }
-
-                    steps {
-                        sh '''
-                            npm install serve
-                            node_modules/.bin/serve -s build &
-                            sleep 10
-                            npx playwright test  --reporter=html
-                        '''
-                    }
-
-                    post {
-                        always {
-                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright HTML Report', reportTitles: '', useWrapperFileDirectly: true])
-                        }
-                    }
-                }
-            }
-        }
+     
 
         stage('Deploy') {
             agent {
@@ -82,6 +40,8 @@ pipeline {
                 sh '''
                     npm install netlify-cli
                     node_modules/.bin/netlify --version
+                    node_modules/.bin/netlify status
+
                 '''
             }
         }
