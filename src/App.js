@@ -12,7 +12,7 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn Jenkins from Dji
+          Learn Jenkins from Udemy
         </a>
       </header>
       <p>
